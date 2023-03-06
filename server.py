@@ -77,16 +77,43 @@ def hello():
     '''Return something coherent here.. perhaps redirect to /static/index.html '''
     return redirect(url_for('static', filename='index.html'))
 
-@app.route("/entity/<entity>", methods=['POST','PUT'])
-def update(entity):
-    '''update the entities via this interface'''
+# @app.route("/entity/<entity>", methods=['POST','PUT'])
+# def update(entity):
+#     '''update the entities via this interface'''
     
-    if request.method == 'PUT' or request.method == 'POST':
+#     if request.method == 'PUT' or request.method == 'POST':
+#         data = request.get_json()
+#         myWorld.set(entity, data)
+#         return jsonify(data), 200
+#     else:
+#         return "Method not allowed", 405
+# @app.route("/entity/<entity>", methods=['POST','PUT'])
+# def update_entities():
+#     '''update the entities via this interface'''
+    
+#     if request.method == 'POST' or request.method == 'PUT' :
+#         data = request.get_json()
+#         for entity, value in data.items():
+#             myWorld.set(entity, value)
+#         return jsonify(data), 200
+#     else:
+#         return "Method not allowed", 405
+
+@app.route("/entity/<entity>", methods=['POST','PUT'])
+def update_entities(entity=None):
+    '''update the entities via this interface'''
+    if request.method == 'POST' or request.method == 'PUT':
         data = request.get_json()
-        myWorld.set(entity, data)
-        return jsonify(data), 200
+        if entity:
+            myWorld.set(entity, data)
+            return jsonify(data), 200
+        else:
+            for entity, value in data.items():
+                myWorld.set(entity, value)
+            return jsonify(data), 200
     else:
         return "Method not allowed", 405
+
 
 @app.route("/world", methods=['POST','GET'])    
 def world():

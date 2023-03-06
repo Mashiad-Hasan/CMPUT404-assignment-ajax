@@ -150,7 +150,7 @@ function getPosition(e) {
 // }
 function addEntity(entity, data) {
     world[entity] = data;
-    drawNextFrame(); // (but should we?)
+    //drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just  modified!
     // Send a POST request to update the entity
     var xhr = new XMLHttpRequest();
@@ -159,7 +159,7 @@ function addEntity(entity, data) {
             try {
                 if (xhr.status === 200) {
                     // Entity was updated successfully
-                    update();
+                    //update();
                 } else {
                     // Handle error response
                 }
@@ -173,6 +173,42 @@ function addEntity(entity, data) {
     xhr.setRequestHeader("Accept", "application/json");
     xhr.send(JSON.stringify(data));
 }
+
+// // Create a global array to hold the batched requests
+// var requestBatch = [];
+
+// function addEntity(entity, data) {
+//     // Add the entity and data to the batch
+//     requestBatch.push({ entity: entity, data: data });
+
+//     // Check if we have enough requests to send a batch
+//     if (requestBatch.length >= 10) { // for example, you could adjust this number as needed
+//         sendBatchRequest();
+//     }
+// }
+
+// function sendBatchRequest() {
+//     // Create a new XMLHttpRequest to send the batched requests
+//     var xhr = new XMLHttpRequest();
+//     xhr.onreadystatechange = function() {
+//         if (xhr.readyState === 4) {
+//             try {
+//                 if (xhr.status === 200) {
+//                     // Batch was successfully processed, clear the batch
+//                     requestBatch = [];
+//                 } else {
+//                     // Handle error response
+//                 }
+//             } catch (e) {
+//                 alert('Error: ' + e.name);
+//             }
+//         }
+//     };
+//     xhr.open("POST", "http://localhost:5000/entityBatch", true);
+//     xhr.setRequestHeader("Content-Type", "application/json");
+//     xhr.setRequestHeader("Accept", "application/json");
+//     xhr.send(JSON.stringify(requestBatch));
+// }
 
 var counter = 0;
 function addEntityWithoutName(data) {
@@ -299,15 +335,29 @@ mouse.mousedraggers.push(function(x,y,clicked,e) {
 //     drawFrame();
 // }
 
+// function update() {
+//     // Get the world from the web service
+//     sendJSONXMLHTTPRequest("http://localhost:5000/world", null, function(data) {
+//         // Update the world object with the new data
+//         //world = data;
+//         // Redraw the canvas
+//         drawFrame();
+//     });
+// }
+
 function update() {
-    // Get the world from the web service
-    sendJSONXMLHTTPRequest("http://localhost:5000/world", null, function(data) {
-        // Update the world object with the new data
-        world = data;
-        // Redraw the canvas
-        drawFrame();
-    });
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      var data = JSON.parse(xhr.responseText);
+      world = data;
+      drawFrame();
+    }
+  };
+  xhr.open("GET", "http://localhost:5000/world", true);
+  xhr.send();
 }
+
 
 
 // 30 frames per second
