@@ -22,9 +22,10 @@
 
 
 import flask
-from flask import Flask, request
+from flask import Flask, request, jsonify
+from flask import redirect, url_for
 import json
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 app.debug = True
 
 # An example world
@@ -74,27 +75,46 @@ def flask_post_json():
 @app.route("/")
 def hello():
     '''Return something coherent here.. perhaps redirect to /static/index.html '''
-    return None
+    return redirect(url_for('static', filename='index.html'))
 
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
     '''update the entities via this interface'''
-    return None
+    
+    if request.method == 'PUT' or request.method == 'POST':
+        data = request.get_json()
+        myWorld.set(entity, data)
+        return jsonify(data), 200
+    else:
+        return "Method not allowed", 405
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
     '''you should probably return the world here'''
-    return None
+    if request.method == 'GET' or request.method == 'POST':
+        return jsonify(myWorld.world())
+    else:
+        return "Method not allowed", 405
 
 @app.route("/entity/<entity>")    
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
-    return None
+    
+    data = myWorld.get(entity)
+    # if data:
+    #     return jsonify(data), 200
+    # else:
+    #     return "Entity not found", 404
+    return jsonify(data)
 
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     '''Clear the world out!'''
-    return None
+    if request.method == 'GET' or request.method == 'POST':
+        myWorld.clear()
+        return jsonify({})
+    else:
+        return "Method not allowed", 405
 
 if __name__ == "__main__":
     app.run()
