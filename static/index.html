@@ -23,15 +23,18 @@
     "/>
     <script src="json2.js"></script>
   </head> 
-  <body bgcolor="white" height="100%" width="100%"> 
-    <h1>Hello World!</h1>
-    <canvas id="c" width="100%" height="100%" style="-webkit-tap-highlight-color: transparent;"></canvas> 
+  <body bgcolor="#F5F5DC" height="100%" width="100%"> 
+    <div class="container"></div>
+        <h1>Canvas</h1>
+        <button id="clearBtn">Clear Canvas</button>
+        <canvas id="c" width="100%" height="100%""></canvas> 
+    </div>
     <script>
 var canvas = document.getElementById('c');
 var host = window.location.host;
 var context = canvas.getContext("2d");
-var W = canvas.width  = window.innerWidth-6;
-var H = canvas.height = window.innerHeight-50;
+var W = canvas.width  = window.innerWidth-60;
+var H = canvas.height = window.innerHeight-140;
 
 
 function sendJSONXMLHTTPRequest(url, objects, callback) {
@@ -52,7 +55,7 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
         }
     };
     //XXX: POST to a URL
-    xhr.open("POST", "http://localhost:5000/entity", true);
+    xhr.open("POST", url, true);
     //XXX: set the mimetype and the accept headers!
     // Remember to use application/json !
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -148,67 +151,34 @@ function getPosition(e) {
 //     //XXX: Send a XHTML Request that updates the entity you just  modified!
 
 // }
+
 function addEntity(entity, data) {
-    world[entity] = data;
-    //drawNextFrame(); // (but should we?)
-    //XXX: Send a XHTML Request that updates the entity you just  modified!
-    // Send a POST request to update the entity
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-            try {
-                if (xhr.status === 200) {
-                    // Entity was updated successfully
-                    //update();
-                } else {
-                    // Handle error response
-                }
-            } catch (e) {
-                alert('Error: ' + e.name);
-            }
-        }
-    };
-    xhr.open("POST", "http://localhost:5000/entity/" + entity, true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.setRequestHeader("Accept", "application/json");
-    xhr.send(JSON.stringify(data));
+  world[entity] = data;
+  drawNextFrame(); // (but should we?)
+  //XXX: Send a XHTML Request that updates the entity you just  modified!
+  // Send a fetch request that updates the entity just modified
+  fetch('/entity/' + entity, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+  .then(response => {
+    if (response.ok) {
+      // Entity was updated successfully
+      
+    } else {
+      // Handle error response
+      
+    }
+  })
+  .catch(error => {
+    alert('Error: ' + error.message);
+  });
 }
 
-// // Create a global array to hold the batched requests
-// var requestBatch = [];
-
-// function addEntity(entity, data) {
-//     // Add the entity and data to the batch
-//     requestBatch.push({ entity: entity, data: data });
-
-//     // Check if we have enough requests to send a batch
-//     if (requestBatch.length >= 10) { // for example, you could adjust this number as needed
-//         sendBatchRequest();
-//     }
-// }
-
-// function sendBatchRequest() {
-//     // Create a new XMLHttpRequest to send the batched requests
-//     var xhr = new XMLHttpRequest();
-//     xhr.onreadystatechange = function() {
-//         if (xhr.readyState === 4) {
-//             try {
-//                 if (xhr.status === 200) {
-//                     // Batch was successfully processed, clear the batch
-//                     requestBatch = [];
-//                 } else {
-//                     // Handle error response
-//                 }
-//             } catch (e) {
-//                 alert('Error: ' + e.name);
-//             }
-//         }
-//     };
-//     xhr.open("POST", "http://localhost:5000/entityBatch", true);
-//     xhr.setRequestHeader("Content-Type", "application/json");
-//     xhr.setRequestHeader("Accept", "application/json");
-//     xhr.send(JSON.stringify(requestBatch));
-// }
 
 var counter = 0;
 function addEntityWithoutName(data) {
@@ -335,28 +305,54 @@ mouse.mousedraggers.push(function(x,y,clicked,e) {
 //     drawFrame();
 // }
 
-// function update() {
-//     // Get the world from the web service
-//     sendJSONXMLHTTPRequest("http://localhost:5000/world", null, function(data) {
-//         // Update the world object with the new data
-//         //world = data;
-//         // Redraw the canvas
-//         drawFrame();
-//     });
-// }
 
 function update() {
-  var xhr = new XMLHttpRequest();
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState === 4 && xhr.status === 200) {
-      var data = JSON.parse(xhr.responseText);
-      world = data;
-      drawFrame();
+  // Send a fetch request to get the world data from the webservice
+  fetch('/world', {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json'
     }
-  };
-  xhr.open("GET", "http://localhost:5000/world", true);
-  xhr.send();
+  })
+  .then(response => {
+    if (response.ok) {
+      // World data was retrieved successfully
+      return response.json();
+    } else {
+      // Handle error response
+      throw new Error('Failed to retrieve world');
+    }
+  })
+  .then(data => {
+    // Update the world data and draw the frame
+    world = data;
+    drawFrame();
+  })
+  .catch(error => {
+    alert('Error: ' + error.message);
+  });
 }
+
+var clearBtn = document.getElementById('clearBtn');
+clearBtn.addEventListener('click', function() {
+fetch('/clear', {
+    method: 'POST'
+})
+.then(response => {
+    if (response.ok) {
+    // Canvas was cleared successfully
+    drawNextFrame();
+    update();
+    } else {
+    // Handle error response
+    throw new Error('Failed to clear canvas');
+    }
+})
+.catch(error => {
+    alert('Error: ' + error.message);
+});
+  });
+
 
 
 
@@ -366,5 +362,6 @@ setInterval( update, 1000/30.0);
 
 
     </script>
+   
 </body>
 </html>
