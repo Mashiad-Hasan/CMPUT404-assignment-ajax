@@ -9,24 +9,24 @@ Make a shared state AJAX drawing program
 
 Contributors / Licensing
 ========================
-(New) Mashiad Hasan
+- Mashiad Hasan, 2023 (New) 
 
 In collaboration with:
-Dale Richmond Naviza
+- Dale Richmond Naviza (New)
 
 Generally everything is LICENSE'D under the Apache 2 license by Abram Hindle.
 
-External Code
+## External Code
 In server.py:
 
-- the redirect(url_for()) code was adapted from Flask documentation (line 78)
-URL: https://flask.palletsprojects.com/en/2.2.x/api/
+* The redirect(url_for()) code was adapted from Flask documentation (line 78)
+  * URL: https://flask.palletsprojects.com/en/2.2.x/api/
 
-- the jsonify code in the return statements was adapted from Flask Quickstart Docs
-URL: https://flask.palletsprojects.com/en/1.1.x/quickstart/
+* The jsonify code in the return statements was adapted from Flask Quickstart Docs
+  * URL: https://flask.palletsprojects.com/en/1.1.x/quickstart/
 
 In index.html:
-- the Fetch request code was adapted from MDN Web Docs
-URL: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+* The Fetch request code was adapted from MDN Web Docs
+  * URL: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
 
 
